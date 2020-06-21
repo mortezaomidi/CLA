@@ -35,7 +35,6 @@ dependencies {
 repositories {
     mavenCentral()
 }
-
 dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.0'
 }
