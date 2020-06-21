@@ -36,5 +36,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
+
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.0'
 }
