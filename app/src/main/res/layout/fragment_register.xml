@@ -10,23 +10,23 @@
         android:id="@+id/tv_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Collaborate"
-        android:textAlignment="center"
-        android:textSize="50sp"
         android:layout_marginStart="25dp"
+        android:layout_marginTop="60dp"
         android:layout_marginBottom="5dp"
         android:fontFamily="@font/indigo_daisy"
-        android:layout_marginTop="60dp"/>
+        android:text="Register"
+        android:textAlignment="center"
+        android:textSize="50sp" />
 
     <TextView
         android:id="@+id/tv_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Location aware"
-        android:textSize="17sp"
-        android:fontFamily="@font/roboto_regular"
         android:layout_marginStart="25dp"
-        android:layout_marginBottom="50dp"/>
+        android:layout_marginBottom="50dp"
+        android:fontFamily="@font/roboto_regular"
+        android:text="Location aware collaborative SDSS"
+        android:textSize="17sp" />
 
     <EditText
         android:id="@+id/et_name"

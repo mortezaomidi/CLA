@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,7 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 public class fragment_login extends Fragment {
+
 
     public fragment_login() {
         // Required empty public constructor
@@ -28,10 +32,10 @@ public class fragment_login extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         Button button = view.findViewById(R.id.btn_login);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Login successful", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(getActivity(), MapActivity.class);
                 startActivity(i);
                 // ((Activity) getActivity()).overridePendingTransition(0, 0);

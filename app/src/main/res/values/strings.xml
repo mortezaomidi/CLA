@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CLA</string>
+    <string name="app_name">CLA-SDSS</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="token">pk.eyJ1IjoibW9ydGV6YW9taWRpIiwiYSI6ImNqaG9xMzU5ejFhMDczMHMzemhtb2luc3EifQ.aY3C5hnGROlkYiU0CYk1YA</string>
