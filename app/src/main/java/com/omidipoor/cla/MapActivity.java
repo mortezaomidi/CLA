@@ -3,12 +3,16 @@ package com.omidipoor.cla;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
@@ -18,6 +22,7 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -26,6 +31,9 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.omidipoor.cla.database.AppDatabase;
+import com.omidipoor.cla.database.DatabaseInitializer;
+import com.omidipoor.cla.database.User;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -38,6 +46,13 @@ public class MapActivity extends AppCompatActivity implements
     private MapView mapView;
     private MapboxMap mapboxMap;
     private Style style;
+
+    FloatingActionButton btnGps;
+
+
+
+
+
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
@@ -49,20 +64,33 @@ public class MapActivity extends AppCompatActivity implements
         Mapbox.getInstance(this, getString(R.string.token));
 
         setContentView(R.layout.activity_map);
+
+        btnGps = findViewById(R.id.fab_gps);
+
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
+        // initialise db
+        DatabaseInitializer.populateAsync(AppDatabase.getAppDatabase(this));
+
         showWelcome();
+
+        btnGps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Location last = mapboxMap.getLocationComponent().getLastKnownLocation();
+                if (last != null){
+                    mapboxMap.animateCamera(com.mapbox.mapboxsdk.camera.CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                                    mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude()),
+                            14));
+                }
+            }
+        });
     }
 
-    private void showWelcome() {
-        CoordinatorLayout crdLayout;
-        crdLayout = findViewById(R.id.loginFragmentCoordinateL);
-        Snackbar snkbr = Snackbar.make(crdLayout, "Welcome to LAC-SDSS",
-                Snackbar.LENGTH_LONG);
-        snkbr.show();
-    }
+
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
@@ -73,8 +101,20 @@ public class MapActivity extends AppCompatActivity implements
                     @Override public void onStyleLoaded(@NonNull Style style) {
                         style = style;
                         enableLocationComponent(style);
+
+                        AppDatabase db = AppDatabase.getAppDatabase(getBaseContext());
+                        List<User> a = db.userDao().getAll();
+                        Log.d("MyErr", a.get(0).getFirstName());
                     }
                 });
+    }
+
+    private void showWelcome() {
+        DrawerLayout drawerLayout;
+        drawerLayout = findViewById(R.id.drawer_layout);
+        Snackbar snk = Snackbar.make(drawerLayout, "Welcome to LAC-SDSS",
+                Snackbar.LENGTH_LONG);
+        snk.show();
     }
 
 
