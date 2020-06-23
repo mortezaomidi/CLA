@@ -5,6 +5,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 
+import com.omidipoor.cla.fragment.fragment_login;
+import com.omidipoor.cla.fragment.fragment_register;
+
 public class LoginActivity extends AppCompatActivity {
 
     @Override

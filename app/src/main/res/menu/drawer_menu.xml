@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id = "@+id/db" android:title="Participation" android:icon="@drawable/ic_baseline_gps_fixed_24"/>
+    <item android:id = "@+id/خببثق" android:title="Offers" android:icon="@drawable/ic_baseline_fiber_new_24"/>
+    <item android:id = "@+id/activities" android:title="Activities" android:icon="@drawable/ic_baseline_notifications_active32"/>
+    <item android:id = "@+id/settings" android:title="Settings" android:icon="@drawable/ic_baseline_settings_32"/>
+    <item android:id = "@+id/logout" android:title="Log Out" android:icon="@drawable/ic_baseline_exit_to_app_24"/>
+
+</menu>
+

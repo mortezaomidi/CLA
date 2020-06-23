@@ -1,34 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
+    <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true"
-    tools:openDrawer="start"
-    tools:context=".MapActivity">
-
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
+        android:id="@+id/layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:mapbox_cameraTargetLat="35.6784957"
-        mapbox:mapbox_cameraTargetLng="51.4099659"
-        mapbox:mapbox_cameraZoom="10"/>
+        android:orientation="vertical">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_gps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="15dp"
-        android:clickable="true"
-        mapbox:fabSize="mini"
-        android:src="@drawable/ic_baseline_gps_fixed_24" />
+        <include
+            layout="@layout/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activity.MapActivity"
+        tools:openDrawer="start">
+
+        <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            mapbox:mapbox_cameraTargetLat="35.6784957"
+            mapbox:mapbox_cameraTargetLng="51.4099659"
+            mapbox:mapbox_cameraZoom="10">
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_gps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|left|end"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_gps_fixed_white_32"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|top|end"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_layers_white_32"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_draw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_add_white_32"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+
+
+        </com.mapbox.mapboxsdk.maps.MapView>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/header"
+            app:menu="@menu/drawer_menu"/>
+
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 
 
-</androidx.drawerlayout.widget.DrawerLayout>
+    </LinearLayout>
+
+
+
+
+
+
+
+
+
+

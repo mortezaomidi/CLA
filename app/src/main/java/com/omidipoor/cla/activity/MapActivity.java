@@ -1,14 +1,17 @@
-package com.omidipoor.cla;
+package com.omidipoor.cla.activity;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -31,6 +34,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.omidipoor.cla.R;
 import com.omidipoor.cla.database.AppDatabase;
 import com.omidipoor.cla.database.DatabaseInitializer;
 import com.omidipoor.cla.database.User;
@@ -49,7 +53,9 @@ public class MapActivity extends AppCompatActivity implements
 
     FloatingActionButton btnGps;
 
-
+    Toolbar mToolbar;
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle toggle;
 
 
 
@@ -65,11 +71,27 @@ public class MapActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_map);
 
+
+        // disp toolbar
+        mToolbar =  findViewById(R.id.m_toolbar);
+        setSupportActionBar(mToolbar);
+
+        // display toggle in action bar
+        drawerLayout = findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+
         btnGps = findViewById(R.id.fab_gps);
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+
 
         // initialise db
         DatabaseInitializer.populateAsync(AppDatabase.getAppDatabase(this));
@@ -96,7 +118,7 @@ public class MapActivity extends AppCompatActivity implements
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
-        mapboxMap.setStyle(Style.TRAFFIC_NIGHT,
+        mapboxMap.setStyle(Style.MAPBOX_STREETS,
                 new Style.OnStyleLoaded() {
                     @Override public void onStyleLoaded(@NonNull Style style) {
                         style = style;
@@ -110,8 +132,6 @@ public class MapActivity extends AppCompatActivity implements
     }
 
     private void showWelcome() {
-        DrawerLayout drawerLayout;
-        drawerLayout = findViewById(R.id.drawer_layout);
         Snackbar snk = Snackbar.make(drawerLayout, "Welcome to LAC-SDSS",
                 Snackbar.LENGTH_LONG);
         snk.show();
@@ -270,5 +290,13 @@ public class MapActivity extends AppCompatActivity implements
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (toggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
