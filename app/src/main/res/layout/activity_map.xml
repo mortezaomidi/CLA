@@ -64,6 +64,29 @@
                 app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/zoom_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_add_white_32"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/zoom_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:layout_marginTop="70dp"
+                android:layout_marginStart="20dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_remove__white_24"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+
 
         </com.mapbox.mapboxsdk.maps.MapView>
 
