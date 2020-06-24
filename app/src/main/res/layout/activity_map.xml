@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
 
@@ -30,7 +31,6 @@
             mapbox:mapbox_cameraTargetLng="51.4099659"
             mapbox:mapbox_cameraZoom="10">
 
-
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_gps"
                 android:layout_width="wrap_content"
@@ -43,18 +43,19 @@
                 app:fabSize="mini" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_menu"
+                android:id="@+id/fabLayerSwitcher"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|top|end"
-                android:layout_margin="20dp"
+                android:layout_marginTop="150dp"
+                android:layout_marginRight="20dp"
                 android:clickable="true"
                 android:src="@drawable/ic_baseline_layers_white_32"
                 app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_draw"
+                android:id="@+id/fab_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"

@@ -12,6 +12,11 @@
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
 
-
+    <string-array name="stepLabels">
+        <item>Criteria</item>
+        <item>Weights</item>
+        <item>Alternatives</item>
+        <item>Feedback</item>
+    </string-array>
 
 </resources>

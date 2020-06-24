@@ -34,6 +34,12 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.Layer;
+
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+import com.mapbox.mapboxsdk.style.layers.RasterLayer;
+import com.mapbox.mapboxsdk.style.sources.RasterSource;
 import com.omidipoor.cla.R;
 import com.omidipoor.cla.database.AppDatabase;
 import com.omidipoor.cla.database.DatabaseInitializer;
@@ -42,6 +48,7 @@ import com.omidipoor.cla.database.User;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.omidipoor.cla.Common.DEFAULT_INTERVAL_IN_MILLISECONDS;
 import static com.omidipoor.cla.Common.DEFAULT_MAX_WAIT_TIME;
 
@@ -49,9 +56,8 @@ public class MapActivity extends AppCompatActivity implements
         OnMapReadyCallback, PermissionsListener {
     private MapView mapView;
     private MapboxMap mapboxMap;
-    private Style style;
 
-    FloatingActionButton btnGps;
+    FloatingActionButton btnGps, btnLayerSwitcher;
 
     Toolbar mToolbar;
     DrawerLayout drawerLayout;
@@ -86,6 +92,7 @@ public class MapActivity extends AppCompatActivity implements
 
 
         btnGps = findViewById(R.id.fab_gps);
+        btnLayerSwitcher = findViewById(R.id.fabLayerSwitcher);
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -98,20 +105,10 @@ public class MapActivity extends AppCompatActivity implements
 
         showWelcome();
 
-        btnGps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Location last = mapboxMap.getLocationComponent().getLastKnownLocation();
-                if (last != null){
-                    mapboxMap.animateCamera(com.mapbox.mapboxsdk.camera.CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
-                                    mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude()),
-                            14));
-                }
-            }
-        });
-    }
 
+
+
+    }
 
 
     @Override
@@ -127,8 +124,49 @@ public class MapActivity extends AppCompatActivity implements
                         AppDatabase db = AppDatabase.getAppDatabase(getBaseContext());
                         List<User> a = db.userDao().getAll();
                         Log.d("MyErr", a.get(0).getFirstName());
+
+                        btnLayerSwitcher.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                changeBaseMap(mapboxMap.getStyle());
+                            }
+                        });
+
+                        btnGps.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Location last = mapboxMap.getLocationComponent().getLastKnownLocation();
+                                if (last != null){
+                                    mapboxMap.animateCamera(com.mapbox.mapboxsdk.camera.CameraUpdateFactory.newLatLngZoom(
+                                            new LatLng(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                                                    mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude()),
+                                            14));
+                                }
+                            }
+                        });
                     }
                 });
+    }
+
+    private void changeBaseMap(Style style) {
+        Layer satelliteLayer = style.getLayer("SATELLITE_RASTER_LAYER_ID");
+        // Create a data source for the satellite raster image and add the source to the map
+        if (satelliteLayer == null) {
+            style.addSource(new RasterSource("SATELLITE_RASTER_SOURCE_ID",
+                    "mapbox://mapbox.satellite", 512));
+            style.addLayer(
+                    new RasterLayer("SATELLITE_RASTER_LAYER_ID", "SATELLITE_RASTER_SOURCE_ID"));
+        } else {
+
+            if (VISIBLE.equals(satelliteLayer.getVisibility().getValue())){
+                satelliteLayer.setProperties(visibility(NONE));
+            } else {
+                satelliteLayer.setProperties(visibility(VISIBLE));
+            }
+        }
+
+
+
     }
 
     private void showWelcome() {
