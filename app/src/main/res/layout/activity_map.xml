@@ -43,25 +43,46 @@
                 app:fabSize="mini" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabLayerSwitcher"
+                android:id="@+id/drawMarker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|top|end"
-                android:layout_marginTop="150dp"
+                android:layout_gravity="bottom|right|end"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_location_on_white_32"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/drawLineString"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right|end"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="70dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_timeline_white_32"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/drawPolygon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right|end"
+                android:layout_marginBottom="120dp"
                 android:layout_marginRight="20dp"
                 android:clickable="true"
-                android:src="@drawable/ic_baseline_layers_white_32"
+                android:src="@drawable/ic_baseline_format_shapes_white_32"
                 app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_menu"
+                android:id="@+id/fabLayerSwitcher"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
+                android:layout_gravity="top|end"
                 android:layout_margin="20dp"
                 android:clickable="true"
-                android:src="@drawable/ic_baseline_add_white_32"
+                android:src="@drawable/ic_baseline_layers_white_32"
                 app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 

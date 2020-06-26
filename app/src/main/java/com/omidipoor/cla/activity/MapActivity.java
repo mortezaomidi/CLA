@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +25,13 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -34,19 +41,45 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.annotation.Circle;
+import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
+import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
+import com.mapbox.mapboxsdk.plugins.annotation.OnCircleClickListener;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textOffset;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.RasterSource;
+import com.mapbox.mapboxsdk.utils.BitmapUtils;
+import com.mapbox.mapboxsdk.utils.ColorUtils;
+import com.mapbox.turf.TurfMeasurement;
 import com.omidipoor.cla.R;
 import com.omidipoor.cla.database.AppDatabase;
 import com.omidipoor.cla.database.DatabaseInitializer;
 import com.omidipoor.cla.database.User;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.omidipoor.cla.Common.DEFAULT_INTERVAL_IN_MILLISECONDS;
@@ -57,7 +90,12 @@ public class MapActivity extends AppCompatActivity implements
     private MapView mapView;
     private MapboxMap mapboxMap;
 
-    FloatingActionButton btnGps, btnLayerSwitcher;
+    // for drawing
+    CircleManager circleManager;
+    List<Point> fakeLineVertexes;
+    List<Point> fakeLineVertexesWithMid;
+
+    FloatingActionButton btnGps, btnLayerSwitcher, btnDrawPoint, btnDrawLine, btnDrawPolygon;
 
     Toolbar mToolbar;
     DrawerLayout drawerLayout;
@@ -93,10 +131,14 @@ public class MapActivity extends AppCompatActivity implements
 
         btnGps = findViewById(R.id.fab_gps);
         btnLayerSwitcher = findViewById(R.id.fabLayerSwitcher);
+        btnDrawPoint = findViewById(R.id.drawMarker);
+        btnDrawLine = findViewById(R.id.drawLineString);
+        btnDrawPolygon = findViewById(R.id.drawPolygon);
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+        
 
 
 
@@ -111,42 +153,258 @@ public class MapActivity extends AppCompatActivity implements
     }
 
 
+
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
+
+
+
         mapboxMap.setStyle(Style.MAPBOX_STREETS,
                 new Style.OnStyleLoaded() {
                     @Override public void onStyleLoaded(@NonNull Style style) {
-                        style = style;
                         enableLocationComponent(style);
 
                         AppDatabase db = AppDatabase.getAppDatabase(getBaseContext());
                         List<User> a = db.userDao().getAll();
                         Log.d("MyErr", a.get(0).getFirstName());
 
-                        btnLayerSwitcher.setOnClickListener(new View.OnClickListener() {
+                        circleManager = new CircleManager(mapView, mapboxMap, style);
+                        showNearPeople(mapboxMap.getStyle());
+                        addEmptySourceToMap4ManageDrawing(mapboxMap.getStyle());
+
+                        circleManager.addClickListener(new OnCircleClickListener() {
                             @Override
-                            public void onClick(View view) {
-                                changeBaseMap(mapboxMap.getStyle());
-                            }
+                            public void onAnnotationClick(Circle circle) {
+                                manageMidOrMainPointClick(circle);                          }
                         });
 
-                        btnGps.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Location last = mapboxMap.getLocationComponent().getLastKnownLocation();
-                                if (last != null){
-                                    mapboxMap.animateCamera(com.mapbox.mapboxsdk.camera.CameraUpdateFactory.newLatLngZoom(
-                                            new LatLng(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
-                                                    mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude()),
-                                            14));
-                                }
-                            }
-                        });
+
                     }
                 });
+
+
+
+        mapView.addOnStyleImageMissingListener(new MapView.OnStyleImageMissingListener() {
+            @Override
+            public void onStyleImageMissing(@NonNull String id) {
+                switch (id) {
+                    case "Morteza":
+                        addImage(id, R.drawable.morteza);
+                        break;
+                    case "Ara":
+                        addImage(id, R.drawable.ara);
+                        break;
+                    case "Saeid":
+                        addImage(id, R.drawable.saead);
+                        break;
+                    case "Ali":
+                        addImage(id, R.drawable.ali);
+                        break;
+                    default:
+                        addImage(id, R.drawable.mohamadreza);
+                        break;
+                }
+            }
+        });
+
+
+        btnLayerSwitcher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeBaseMap(mapboxMap.getStyle());
+            }
+        });
+
+        btnGps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Location last = mapboxMap.getLocationComponent().getLastKnownLocation();
+                if (last != null){
+                    mapboxMap.animateCamera(com.mapbox.mapboxsdk.camera.CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                                    mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude()),
+                            14));
+                }
+            }
+        });
+
+
+        btnDrawPoint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawPointByClick(mapboxMap.getStyle());
+            }
+        });
+
+        btnDrawLine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        btnDrawPolygon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
     }
+
+    private void manageMidOrMainPointClick(Circle circle) {
+
+        circle.setCircleColor(Color.YELLOW);
+        circle.setDraggable(true);
+        circleManager.update(circle);
+    }
+
+
+    private void addEmptySourceToMap4ManageDrawing(Style style) {
+        String f = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[51.4371045,35.6401296],[51.425867,35.6787903],[51.4407632,35.7303795],[51.4802251,35.7486294],[51.446774,35.7940239]]},\"properties\":{}}";
+        String s = "{\"type\":\"LineString\",\"coordinates\":[[51.4371045,35.6401296],[51.425867,35.6787903],[51.4407632,35.7303795],[51.4802251,35.7486294],[51.446774,35.7940239]],\"properties\":{}}";
+        String pf = "{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[51.21757507324219,35.73982452242507],[51.216888427734375,35.70247433100471],[51.25122070312499,35.69968630125204],[51.28349304199219,35.721987809328716],[51.263580322265625,35.75208494531366],[51.21757507324219,35.73982452242507]]]}}";
+        String ps = "{\"type\":\"Polygon\",\"coordinates\":[[[51.21757507324219,35.73982452242507],[51.216888427734375,35.70247433100471],[51.25122070312499,35.69968630125204],[51.28349304199219,35.721987809328716],[51.263580322265625,35.75208494531366],[51.21757507324219,35.73982452242507]]],\"properties\":{}}";
+        style.addSource(new GeoJsonSource("fakeLineStringSource", f));
+        style.addSource(new GeoJsonSource("fakePolygonSource", pf));
+
+        LineString lineString = LineString.fromJson(s);
+        Polygon polygon = Polygon.fromJson(ps);
+
+
+
+        style.addLayerBelow(new LineLayer("fakeDrawLineStringLayer", "fakeLineStringSource").withProperties(
+                PropertyFactory.lineDasharray(new Float[] {0.01f, 2f}),
+                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
+                PropertyFactory.lineWidth(5f),
+                PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
+        ), circleManager.getLayerId());
+
+        style.addLayerBelow(new FillLayer("fakePolygonLayer", "fakePolygonSource").withProperties(
+                PropertyFactory.fillColor(Color.GRAY),
+                PropertyFactory.fillOpacity(0.5f)
+                ),circleManager.getLayerId());
+
+        addAllMidpointOfGeom(Feature.fromJson(f));
+        addAllMidpointOfGeom(Feature.fromJson(pf));
+
+    }
+
+    private void addAllMidpointOfGeom(Feature feature) {
+
+        if (feature.geometry().type().equals("LineString")) {
+            List<Point> points = ((LineString) Objects.requireNonNull(feature.geometry())).coordinates();
+            int size = points.size();
+            for (int i=0; i < size; i++) {
+                Point p = points.get(i);
+                addSingleMainPointToCircleManager(p);
+            }
+            for (int i=0; i < size - 1; i++) {
+                Point from = points.get(i);
+                Point to = points.get( i + 1);
+                Point midPoint = TurfMeasurement.midpoint(from, to);
+                addSingleMidPointToCircleManager(midPoint);
+            }
+        } else if (feature.geometry().type().equals("Polygon")){
+            List<List<Point>> pointsList = ((Polygon) Objects.requireNonNull(feature.geometry())).coordinates();
+            int size = pointsList.get(0).size();
+            for (int i=0; i < size - 1; i++) {
+                Point p = pointsList.get(0).get(i);
+                addSingleMainPointToCircleManager(p);
+            }
+            for (int i=0; i < size - 1; i++) {
+                Point from = pointsList.get(0).get(i);
+                Point to = pointsList.get(0).get( i + 1);
+                Point midPoint = TurfMeasurement.midpoint(from, to);
+                addSingleMidPointToCircleManager(midPoint);
+            }
+
+        } else {
+
+        }
+
+    }
+
+    private void addSingleMidPointToCircleManager(Point midPoint) {
+        CircleOptions circleOption = new CircleOptions()
+                .withLatLng(new LatLng(midPoint.latitude(), midPoint.longitude()))
+                .withCircleColor(ColorUtils.colorToRgbaString(Color.GREEN))
+                .withCircleRadius(7f)
+                .withDraggable(false);
+        circleManager.create(circleOption);
+    }
+
+    private void addSingleMainPointToCircleManager(Point p) {
+        CircleOptions circleOption = new CircleOptions()
+                .withLatLng(new LatLng(p.latitude(), p.longitude()))
+                .withCircleColor(ColorUtils.colorToRgbaString(Color.BLACK))
+                .withCircleRadius(10f)
+                .withDraggable(false);
+        circleManager.create(circleOption);
+    }
+
+    private void drawPointByClick(Style style) {
+        mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+            @Override
+            public boolean onMapClick(@NonNull LatLng point) {
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(point));
+                return true;
+            }
+        });
+    }
+
+    private void addImage(String id, int drawableImage) {
+        Style style = mapboxMap.getStyle();
+        if (style != null) {
+            style.addImageAsync(id, BitmapUtils.getBitmapFromDrawable(
+                    getResources().getDrawable(drawableImage)));
+        }
+    }
+
+
+    private void showNearPeople(Style style) {
+        // Add Features which represent the location of each profile photo SymbolLayer icon
+        Feature carlosFeature = Feature.fromGeometry(Point.fromLngLat(51.388121,
+                35.728728));
+        carlosFeature.addStringProperty("PROFILE_NAME", "Ali");
+
+        Feature antonyFeature = Feature.fromGeometry(Point.fromLngLat(51.391962,
+                35.720288));
+        antonyFeature.addStringProperty("PROFILE_NAME", "Ara");
+
+        Feature mariaFeature = Feature.fromGeometry(Point.fromLngLat(51.389178,
+                35.712495));
+        mariaFeature.addStringProperty("PROFILE_NAME", "Saeid");
+
+        Feature lucianaFeature = Feature.fromGeometry(Point.fromLngLat(51.398295,
+                35.708067));
+        lucianaFeature.addStringProperty("PROFILE_NAME", "Mohammadreza");
+
+        style.addSource(new GeoJsonSource("ICON_SOURCE_ID", FeatureCollection.fromFeatures(new Feature[] {
+                carlosFeature,
+                antonyFeature,
+                mariaFeature,
+                lucianaFeature})));
+
+
+        style.addLayer(new SymbolLayer("ICON_LAYER_ID", "ICON_SOURCE_ID").withProperties(
+                iconImage(get("PROFILE_NAME")),
+                iconIgnorePlacement(true),
+                iconAllowOverlap(true)
+                //textField(get("PROFILE_NAME")),
+                // textIgnorePlacement(true),
+                // textAllowOverlap(true),
+                // textColor(Color.BLACK),
+                // textOffset(new Float[] {0f, 2f})
+        ));
+
+
+    }
+
 
     private void changeBaseMap(Style style) {
         Layer satelliteLayer = style.getLayer("SATELLITE_RASTER_LAYER_ID");
