@@ -8,11 +8,16 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.omidipoor.cla.database.fence.Fence;
+
 import java.util.List;
 
 
 @Dao
 public interface ParticipateDao {
+
+    @Insert
+    void insertAll(Participate... participates);
 
     @Transaction
     @Query("SELECT * FROM User")

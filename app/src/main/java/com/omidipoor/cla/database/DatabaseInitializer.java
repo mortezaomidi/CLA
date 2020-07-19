@@ -5,6 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.omidipoor.cla.database.fence.Fence;
+import com.omidipoor.cla.database.participate.Participate;
 import com.omidipoor.cla.database.user.User;
 
 import java.util.List;
@@ -22,9 +24,20 @@ public class DatabaseInitializer {
         populateWithTestData(db);
     }
 
+    // this methods used for adding pre define data to db
     private static User addUser(final AppDatabase db, User user) {
         db.userDao().insertAll(user);
         return user;
+    }
+
+    private static Fence addFence(final AppDatabase db, Fence fence) {
+        db.fenceDao().insertAll(fence);
+        return fence;
+    }
+
+    private static Participate addParticipate(final AppDatabase db, Participate participate) {
+        db.participateDao().insertAll(participate);
+        return participate;
     }
 
     private static void populateWithTestData(AppDatabase db) {
