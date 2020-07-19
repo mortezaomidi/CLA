@@ -5,6 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.omidipoor.cla.database.user.User;
+
 import java.util.List;
 
 public class DatabaseInitializer {

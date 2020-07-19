@@ -41,10 +41,8 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
-import com.mapbox.mapboxsdk.plugins.annotation.OnCircleClickListener;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
@@ -74,10 +72,9 @@ import com.mapbox.turf.TurfMeasurement;
 import com.omidipoor.cla.R;
 import com.omidipoor.cla.database.AppDatabase;
 import com.omidipoor.cla.database.DatabaseInitializer;
-import com.omidipoor.cla.database.User;
+import com.omidipoor.cla.database.user.User;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -174,11 +171,7 @@ public class MapActivity extends AppCompatActivity implements
                         showNearPeople(mapboxMap.getStyle());
                         addEmptySourceToMap4ManageDrawing(mapboxMap.getStyle());
 
-                        circleManager.addClickListener(new OnCircleClickListener() {
-                            @Override
-                            public void onAnnotationClick(Circle circle) {
-                                manageMidOrMainPointClick(circle);                          }
-                        });
+
 
 
                     }
@@ -254,12 +247,7 @@ public class MapActivity extends AppCompatActivity implements
 
     }
 
-    private void manageMidOrMainPointClick(Circle circle) {
 
-        circle.setCircleColor(Color.YELLOW);
-        circle.setDraggable(true);
-        circleManager.update(circle);
-    }
 
 
     private void addEmptySourceToMap4ManageDrawing(Style style) {
@@ -272,7 +260,6 @@ public class MapActivity extends AppCompatActivity implements
 
         LineString lineString = LineString.fromJson(s);
         Polygon polygon = Polygon.fromJson(ps);
-
 
 
         style.addLayerBelow(new LineLayer("fakeDrawLineStringLayer", "fakeLineStringSource").withProperties(
