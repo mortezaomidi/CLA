@@ -5,12 +5,14 @@ import androidx.room.Relation;
 
 import com.omidipoor.cla.database.user.User;
 
-public class UserAndFence {
-    @Embedded
-    public User user;
+import java.util.List;
+
+public class UserAndParticipate {
+    @Embedded public User user;
     @Relation(
             parentColumn = "userId",
-            entityColumn = "fenceId"
+            entityColumn = "userOwnerId"
     )
-    public Participate participate;
+    public Participate participates;
+
 }

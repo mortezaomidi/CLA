@@ -72,7 +72,11 @@ import com.mapbox.turf.TurfMeasurement;
 import com.omidipoor.cla.R;
 import com.omidipoor.cla.database.AppDatabase;
 import com.omidipoor.cla.database.DatabaseInitializer;
+import com.omidipoor.cla.database.fence.Fence;
+import com.omidipoor.cla.database.participate.Participate;
 import com.omidipoor.cla.database.user.User;
+import com.omidipoor.cla.model.SharedPreferencesManager;
+import com.omidipoor.cla.model.UserSharedPreferences;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -86,6 +90,12 @@ public class MapActivity extends AppCompatActivity implements
         OnMapReadyCallback, PermissionsListener {
     private MapView mapView;
     private MapboxMap mapboxMap;
+
+    // manage shared preferences
+    UserSharedPreferences user = new UserSharedPreferences();
+
+    // room db
+    AppDatabase db;
 
     // for drawing
     CircleManager circleManager;
@@ -112,8 +122,10 @@ public class MapActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_map);
 
+        // room db initialization
+        db = AppDatabase.getAppDatabase(getBaseContext());
 
-        // disp toolbar
+        // display toolbar
         mToolbar =  findViewById(R.id.m_toolbar);
         setSupportActionBar(mToolbar);
 
@@ -135,16 +147,25 @@ public class MapActivity extends AppCompatActivity implements
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        
 
 
+        // user shared preferences
+        final SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(this);
+        user = sharedPreferencesManager.get_shared_preferences();
 
-        // initialise db
-        DatabaseInitializer.populateAsync(AppDatabase.getAppDatabase(this));
+        if(user.getFirst_time_run() == true){
+            // Toast.makeText(this, "این اولین باری است که برنامه اجرا می‌شود", Toast.LENGTH_SHORT).show();
 
-        showWelcome();
+            // initialise db with pre defined data
+            DatabaseInitializer.populateAsync(AppDatabase.getAppDatabase(this));
 
+            showWelcome();
 
+            user.setFirst_time_run(false);
+            sharedPreferencesManager.set_false_first_time(user);
+        }else {
+            //Toast.makeText(this, "برای بار چندم است که برنامه اجرا شده است", Toast.LENGTH_SHORT).show();
+        }
 
 
     }
@@ -155,24 +176,13 @@ public class MapActivity extends AppCompatActivity implements
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
-
-
-
         mapboxMap.setStyle(Style.MAPBOX_STREETS,
                 new Style.OnStyleLoaded() {
                     @Override public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
 
-                        AppDatabase db = AppDatabase.getAppDatabase(getBaseContext());
-                        List<User> a = db.userDao().getAll();
-                        Log.d("MyErr", a.get(0).getFirstName());
-
-                        circleManager = new CircleManager(mapView, mapboxMap, style);
                         showNearPeople(mapboxMap.getStyle());
                         addEmptySourceToMap4ManageDrawing(mapboxMap.getStyle());
-
-
-
 
                     }
                 });

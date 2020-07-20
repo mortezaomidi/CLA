@@ -8,11 +8,12 @@ import androidx.room.RoomDatabase;
 
 import com.omidipoor.cla.database.fence.Fence;
 import com.omidipoor.cla.database.fence.FenceDao;
+import com.omidipoor.cla.database.participate.Participate;
 import com.omidipoor.cla.database.participate.ParticipateDao;
 import com.omidipoor.cla.database.user.User;
 import com.omidipoor.cla.database.user.UserDao;
 
-@Database(entities = {User.class, Fence.class}, version = 1)
+@Database(entities = {User.class, Fence.class, Participate.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;

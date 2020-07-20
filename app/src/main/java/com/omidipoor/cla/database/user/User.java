@@ -20,7 +20,7 @@ public class User {
     }
 
     @PrimaryKey(autoGenerate = true)
-    public int userId;
+    public long userId;
 
     @ColumnInfo(name = "first_name")
     public String firstName;
@@ -37,9 +37,24 @@ public class User {
     @ColumnInfo(name = "last_lat")
     public Double lastLat;
 
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
+    }
+
+    @ColumnInfo(name = "image_url")
+    public String image_url;
 
 
-    public int getUserId() {
+
+    public long getUserId() {
         return userId;
     }
 

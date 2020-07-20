@@ -8,20 +8,21 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
-import com.omidipoor.cla.database.fence.Fence;
-
 import java.util.List;
 
 
 @Dao
 public interface ParticipateDao {
 
+    @Query("SELECT * FROM participate")
+    List<Participate> getAll();
+
     @Insert
     void insertAll(Participate... participates);
 
     @Transaction
     @Query("SELECT * FROM User")
-    public List<UserAndFence> getUsersAndFences();
+    public List<FenceAndParticipate> getUsersAndFences();
 
     // returns all instances of the data class that pairs the parent entity(User) and the
     // child entity(Participate).    // This method requires Room to run two queries,
@@ -29,7 +30,7 @@ public interface ParticipateDao {
     // method to ensure that the whole operation is performed atomically.
     @Transaction
     @Query("SELECT * FROM User")
-    public List<UserWithParticipates> getUsersWithParticipateList();
+    public List<UserAndParticipate> getUsersWithParticipateList();
 
     @Insert
     Long insertParticipate(Participate participate);
@@ -40,7 +41,7 @@ public interface ParticipateDao {
 
 
     @Query("SELECT * FROM participate WHERE participateId =:participateId")
-    LiveData<Participate> getParticipate(int participateId);
+    LiveData<Participate> getParticipate(long participateId);
 
 
     @Update

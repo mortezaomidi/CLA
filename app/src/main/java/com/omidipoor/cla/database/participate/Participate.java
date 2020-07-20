@@ -29,7 +29,7 @@ public class Participate {
     }
 
     @PrimaryKey(autoGenerate = true)
-    public int participateId; // @PrimaryKey public long userId;
+    public long participateId; // @PrimaryKey public long userId;
 
     @ColumnInfo(name = "created_at")
     @TypeConverters({TimestampConverter.class})
@@ -40,13 +40,13 @@ public class Participate {
     public Date modifiedAt;
 
     //  reference to the primary key (on to one) of the parent entities
-    public int fenceId;
+    public long fenceId;
 
     //  reference to the primary key (on to many) of the parent entities
-    public int userOwnerId;
+    public long userOwnerId;
 
 
-    public int getParticipateId() {
+    public long getParticipateId() {
         return participateId;
     }
 
@@ -70,19 +70,19 @@ public class Participate {
         this.modifiedAt = modifiedAt;
     }
 
-    public int getFenceId() {
+    public long getFenceId() {
         return fenceId;
     }
 
-    public void setFenceId(int fenceId) {
+    public void setFenceId(long fenceId) {
         this.fenceId = fenceId;
     }
 
-    public int getUserOwnerId() {
+    public long getUserOwnerId() {
         return userOwnerId;
     }
 
-    public void setUserOwnerId(int userOwnerId) {
+    public void setUserOwnerId(long userOwnerId) {
         this.userOwnerId = userOwnerId;
     }
 }

@@ -10,7 +10,7 @@ public class Fence {
     public Fence() {
     }
 
-    public Fence(int fenceId, String fenceTitle, String polygonGeometry, String criteriaObject) {
+    public Fence(long fenceId, String fenceTitle, String polygonGeometry, String criteriaObject) {
         this.fenceId = fenceId;
         this.fenceTitle = fenceTitle;
         this.polygonGeometry = polygonGeometry;
@@ -18,7 +18,7 @@ public class Fence {
     }
 
     @PrimaryKey(autoGenerate = true)
-    public int fenceId;
+    public long fenceId;
 
     @ColumnInfo(name = "fenceTitle")
     public  String fenceTitle;
@@ -30,7 +30,7 @@ public class Fence {
     public String criteriaObject;
 
 
-    public int getFenceId() {
+    public long getFenceId() {
         return fenceId;
     }
 
